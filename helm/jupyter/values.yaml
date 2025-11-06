@@ -1,0 +1,59 @@
+# ==============================================================
+# JupyterLab Helm Chart Values
+# ==============================================================
+image:
+  repository: jupyter/base-notebook
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# --------------------------------------------------------------
+# Container configuration
+# --------------------------------------------------------------
+containerPort: 8888
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "1"
+    memory: "2Gi"
+
+# --------------------------------------------------------------
+# Service configuration
+# --------------------------------------------------------------
+service:
+  type: ClusterIP
+  port: 8888
+  targetPort: 8888
+
+# --------------------------------------------------------------
+# Persistent Volume configuration
+# --------------------------------------------------------------
+persistence:
+  enabled: true
+  size: 20Gi
+  storageClass: ""
+  accessModes:
+    - ReadWriteOnce
+  mountPath: /home/jovyan/work               # 容器內 JupyterLab 預設工作路徑
+  hostPath: /usr/k8s_proto/jupyter_workspace # Ubuntu 實體資料夾
+
+# --------------------------------------------------------------
+# Ingress configuration
+# --------------------------------------------------------------
+ingress:
+  enabled: true
+  className: nginx
+  host: localhost
+  path: /
+  pathType: Prefix
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  tls:
+    enabled: false
+
+# --------------------------------------------------------------
+# Authentication (optional)
+# --------------------------------------------------------------
+token: "Aa123"

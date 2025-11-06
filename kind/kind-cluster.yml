@@ -1,0 +1,22 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+
+# ========= 節點設定 =========
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      - containerPort: 31080  # NodePort HTTP
+        hostPort: 8080        # Windows localhost port
+      - containerPort: 31443  # NodePort HTTPS
+        hostPort: 8443
+
+  # 工作節點（Worker）
+  - role: worker
+    extraMounts: # 把本機路徑映射到node上
+      - hostPath: /usr/k8s_proto/jupyter_workspace
+        containerPath: /usr/k8s_proto/jupyter_workspace
+
+# ========= 網路設定 =========
+networking:
+  disableDefaultCNI: false     # 使用預設 CNI (container network interface)
+  kubeProxyMode: "iptables"    # 預設 proxy 模式

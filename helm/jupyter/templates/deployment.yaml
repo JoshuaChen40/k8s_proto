@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "jupyterlab.fullname" . }}
+  labels:
+    app: {{ include "jupyterlab.name" . }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "jupyterlab.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "jupyterlab.name" . }}
+    spec:
+      containers:
+        - name: jupyterlab
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.containerPort }}
+          env:
+            - name: JUPYTER_TOKEN
+              value: "{{ .Values.token }}"
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu }}
+              memory: {{ .Values.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.resources.limits.cpu }}
+              memory: {{ .Values.resources.limits.memory }}
+
+          volumeMounts:
+            - name: jupyterlab-storage
+              mountPath: /home/jovyan/work
+
+      volumes:
+        - name: jupyterlab-storage
+          hostPath:
+            path: {{ .Values.persistence.hostPath }}
+            type: Directory
